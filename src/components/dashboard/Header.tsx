@@ -29,6 +29,7 @@ function getPageTitle(pathname: string): { title: string; subtitle: string } {
   if (pathname.startsWith('/clients/new')) return { title: 'New client',    subtitle: 'Add a client to your account' }
   if (pathname.startsWith('/clients/'))   return { title: 'Client',         subtitle: 'Client details and history' }
   if (pathname === '/clients')            return { title: 'Clients',        subtitle: 'Manage your clients' }
+  if (pathname === '/analytics') return { title: 'Analytics', subtitle: 'Revenue and performance insights' }
   if (pathname === '/settings')           return { title: 'Settings',       subtitle: 'Account and preferences' }
   return { title: 'InvoiceFlow', subtitle: '' }
 }
@@ -41,7 +42,7 @@ export default function Header({ user, profile }: HeaderProps) {
 
   const displayName = profile?.business_name ?? profile?.full_name ?? user.email ?? 'Account'
   const initials    = displayName.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
-
+  
   return (
     <header
       className="shrink-0 flex items-center justify-between px-6 py-4 border-b"

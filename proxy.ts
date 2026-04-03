@@ -25,29 +25,38 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // Refresh session — keeps the user logged in across tab switches
-  // Do not add any logic between createServerClient and getUser()
+  // IMPORTANT: Do not add any logic between createServerClient and getUser().
+  // A simple mistake here could cause hard-to-debug auth issues.
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
 
-  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/signup')
-  const isDashboardRoute = pathname.startsWith('/dashboard') ||
+  // Routes that only unauthenticated users should access
+  const isAuthRoute =
+    pathname === '/login' ||
+    pathname === '/signup' ||
+    pathname === '/forgot-password' ||
+    pathname === '/reset-password'
+
+  // All routes that require authentication — use startsWith so nested
+  // paths like /clients/new and /invoices/123 are all covered
+  const isProtectedRoute =
+    pathname.startsWith('/dashboard') ||
     pathname.startsWith('/invoices') ||
     pathname.startsWith('/clients') ||
     pathname.startsWith('/settings')
 
-  // Not logged in + trying to access protected route → redirect to login
-  if (!user && isDashboardRoute) {
+  // Not authenticated → redirect to login, preserving intended destination
+  if (!user && isProtectedRoute) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/login'
     loginUrl.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  // Already logged in + trying to access auth pages → redirect to dashboard
+  // Already authenticated → skip auth pages, go straight to dashboard
   if (user && isAuthRoute) {
     const dashboardUrl = request.nextUrl.clone()
     dashboardUrl.pathname = '/dashboard'
@@ -60,13 +69,14 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all routes except:
-     * - _next/static (static files)
-     * - _next/image (image optimisation)
-     * - favicon.ico
-     * - Public invoice view routes (clients access these without login)
-     * - API webhook route (Flutterwave posts here without a session)
+     * Run middleware on all routes except:
+     * - _next/static  (Next.js static assets)
+     * - _next/image   (Next.js image optimisation)
+     * - favicon.ico   (browser favicon request)
+     * - invoice/view  (public client payment page — no login needed)
+     * - api/payments/webhook (Flutterwave posts here — no session)
+     * - api/auth      (Supabase OAuth callback)
      */
-    '/((?!_next/static|_next/image|favicon.ico|invoice/view|api/payments/webhook).*)',
+    '/((?!_next/static|_next/image|favicon.ico|invoice/view|api/payments/webhook|api/auth).*)',
   ],
 }

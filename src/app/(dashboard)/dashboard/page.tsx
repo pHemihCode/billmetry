@@ -62,7 +62,7 @@ export default async function DashboardPage() {
   if (!user) return null
 
   // Fetch all invoices for this user in one query
-  const { data: invoices = [] } = await supabase
+  const { data: invoicesData } = await supabase
     .from('invoices')
     .select(`
       id, invoice_number, status, total, currency, due_date, created_at,
@@ -70,6 +70,7 @@ export default async function DashboardPage() {
     `)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
+    const invoices = invoicesData ?? []
 
   // ── Computed stats ──────────────────────────────────────────────────────────
   const totalInvoiced  = invoices.reduce((s, inv) => s + inv.total, 0)
@@ -194,7 +195,7 @@ export default async function DashboardPage() {
                 <Link
                   key={inv.id}
                   href={`/invoices/${inv.id}`}
-                  className="grid grid-cols-12 px-5 py-4 border-b items-center hover:bg-white/[0.02] transition-colors group"
+                  className="grid grid-cols-12 px-5 py-4 border-b items-center hover:bg-white/2 transition-colors group"
                   style={{ borderColor: i === recentInvoices.length - 1 ? 'transparent' : 'rgba(255,255,255,0.04)' }}
                 >
                   <span
