@@ -1,11 +1,23 @@
+import { LogoIcon } from "../ui/logo";
+
 export default function Footer (){
   return (
     <footer className="py-10 px-6"
       style={{ background: "#05080F", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
       <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-        <span className="mono text-sm font-semibold text-blue-400 tracking-widest uppercase">
-          BillMetry
-        </span>
+         <div
+        className="px-5 py-5 shrink-0"
+      >
+        <div className="flex items-center gap-2.5">
+          <LogoIcon size={28} />
+          <span
+            className="text-sm font-bold text-white tracking-tight"
+            style={{ fontFamily: 'Georgia, serif' }}
+          >
+            Bill<span style={{ color: '#60A5FA', fontWeight: 400 }}>Metry</span>
+          </span>
+        </div>
+      </div>
         <p className="text-xs text-slate-600">
           © {new Date().getFullYear()} Billmetry. Built for African freelancers.
         </p>

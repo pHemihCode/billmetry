@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-
+import { randomUUID } from 'crypto'
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Client { id: string; name: string; email: string }
@@ -112,6 +112,7 @@ export default function InvoiceBuilderEdit({
 
   // ── Save ────────────────────────────────────────────────────────────────────
   async function handleSave() {
+    const publicToken = randomUUID()
     if (!clientId)  { setError('Please select a client.'); return }
     if (!dueDate)   { setError('Please set a due date.'); return }
     if (items.some(i => !i.description.trim())) {
@@ -157,6 +158,7 @@ export default function InvoiceBuilderEdit({
         quantity:    item.quantity,
         rate:        item.rate,
         amount:      item.quantity * item.rate,
+        public_token: publicToken,
       })))
 
     if (itemsErr) { setError(itemsErr.message); setSaving(false); return }

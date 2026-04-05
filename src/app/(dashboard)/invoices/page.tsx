@@ -2,26 +2,35 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import StatusBadge from '@/components/dashboard/StatusBadge'
+import { formatCurrency, fmtDate } from '@/lib/format'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type FilterStatus = 'all' | 'draft' | 'sent' | 'viewed' | 'paid' | 'overdue'
 
+type Invoice = {
+  id: string
+  invoice_number: string
+  status: string
+  total: number
+  currency: string
+  due_date: string
+  created_at: string
+  clients: { name: string } | { name: string }[] | null
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const currencySymbols: Record<string, string> = {
-  NGN: '₦', USD: '$', GBP: '£', EUR: '€',
-}
-
-function fmt(amount: number, currency: string) {
-  const sym = currencySymbols[currency] ?? ''
-  return `${sym}${amount.toLocaleString('en-NG', { minimumFractionDigits: 0 })}`
-}
-
-function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString('en-NG', {
-    day: 'numeric', month: 'short', year: 'numeric',
-  })
+// Groups by currency and returns "₦120,000 · $800" format
+function sumByCurrency(invoices: Invoice[]): string {
+  if (invoices.length === 0) return formatCurrency(0, 'NGN')
+  const map: Record<string, number> = {}
+  for (const inv of invoices) {
+    map[inv.currency] = (map[inv.currency] ?? 0) + inv.total
+  }
+  return Object.entries(map)
+    .map(([currency, total]) => formatCurrency(total, currency))
+    .join(' · ')
 }
 
 // ─── Filter tabs ──────────────────────────────────────────────────────────────
@@ -94,7 +103,6 @@ export default async function InvoicesPage({
   const { status: statusParam, q } = await searchParams
   const filter = (tabs.find(t => t.value === statusParam)?.value ?? 'all') as FilterStatus
 
-  // Build query — filter by status if not "all"
   let query = supabase
     .from('invoices')
     .select(`
@@ -109,29 +117,25 @@ export default async function InvoicesPage({
   }
 
   const { data: invoicesData } = await query
-  const allInvoices = invoicesData ?? []
+  const allInvoices: Invoice[] = invoicesData ?? []
 
-  // Client-side-style search applied server-side
+  // Search filter — applied in memory after fetch
   const invoices = q
     ? allInvoices.filter(inv => {
-        const clientRaw = Array.isArray(inv.clients) ? inv.clients[0] : inv.clients
+        const clientRaw  = Array.isArray(inv.clients) ? inv.clients[0] : inv.clients
         const clientName = (clientRaw as { name: string } | null)?.name?.toLowerCase() ?? ''
-        const term = q.toLowerCase()
-        return (
-          inv.invoice_number.toLowerCase().includes(term) ||
-          clientName.includes(term)
-        )
+        const term       = q.toLowerCase()
+        return inv.invoice_number.toLowerCase().includes(term) || clientName.includes(term)
       })
     : allInvoices
 
-  // Summary totals across the filtered set
-  const totalValue = allInvoices.reduce((s, i) => s + i.total, 0)
-  const paidValue  = allInvoices.filter(i => i.status === 'paid').reduce((s, i) => s + i.total, 0)
+  // Summary line — grouped by currency so mixed totals display correctly
+  const paidInvoices = allInvoices.filter(i => i.status === 'paid')
 
   return (
     <div className="max-w-5xl mx-auto space-y-5">
 
-      {/* ── Header actions ── */}
+      {/* ── Header ── */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-4">
           <p className="text-sm text-slate-500">
@@ -142,7 +146,7 @@ export default async function InvoicesPage({
               className="text-xs text-slate-600"
               style={{ fontFamily: 'var(--font-mono), monospace' }}
             >
-              {fmt(paidValue, 'NGN')} collected of {fmt(totalValue, 'NGN')} total
+              {sumByCurrency(paidInvoices)} collected
             </p>
           )}
         </div>
@@ -166,7 +170,7 @@ export default async function InvoicesPage({
       <div className="flex items-center gap-1 flex-wrap">
         {tabs.map(tab => {
           const isActive = filter === tab.value
-          const count = tab.value === 'all'
+          const count    = tab.value === 'all'
             ? allInvoices.length
             : allInvoices.filter(i => i.status === tab.value).length
 
@@ -176,8 +180,8 @@ export default async function InvoicesPage({
               href={tab.value === 'all' ? '/invoices' : `/invoices?status=${tab.value}`}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150"
               style={{
-                background:  isActive ? 'rgba(37,99,235,0.15)'          : 'rgba(255,255,255,0.03)',
-                color:       isActive ? '#60A5FA'                        : 'rgba(148,163,184,0.7)',
+                background:  isActive ? 'rgba(37,99,235,0.15)'           : 'rgba(255,255,255,0.03)',
+                color:       isActive ? '#60A5FA'                         : 'rgba(148,163,184,0.7)',
                 border:      isActive ? '1px solid rgba(96,165,250,0.25)' : '1px solid rgba(255,255,255,0.06)',
               }}
             >
@@ -211,10 +215,13 @@ export default async function InvoicesPage({
           <EmptyInvoices filter={filter} />
         ) : (
           <>
-            {/* Header */}
+            {/* Header row */}
             <div
               className="grid grid-cols-12 px-5 py-3 border-b text-xs font-medium text-slate-600 uppercase tracking-wider"
-              style={{ borderColor: 'rgba(255,255,255,0.05)', fontFamily: 'var(--font-mono), monospace' }}
+              style={{
+                borderColor: 'rgba(255,255,255,0.05)',
+                fontFamily: 'var(--font-mono), monospace',
+              }}
             >
               <span className="col-span-3">Invoice</span>
               <span className="col-span-3">Client</span>
@@ -223,20 +230,19 @@ export default async function InvoicesPage({
               <span className="col-span-2 text-right">Amount</span>
             </div>
 
-            {/* Rows */}
+            {/* Data rows */}
             {invoices.map((inv, i) => {
               const clientRaw  = Array.isArray(inv.clients) ? inv.clients[0] : inv.clients
               const clientName = (clientRaw as { name: string } | null)?.name ?? '—'
               const isOverdue  = inv.status !== 'paid' && new Date(inv.due_date) < new Date()
+              const isLast     = i === invoices.length - 1
 
               return (
                 <Link
                   key={inv.id}
                   href={`/invoices/${inv.id}`}
-                  className="grid grid-cols-12 px-5 py-4 items-center border-b hover:bg-white/2 transition-colors group"
-                  style={{
-                    borderColor: i === invoices.length - 1 ? 'transparent' : 'rgba(255,255,255,0.04)',
-                  }}
+                  className="grid grid-cols-12 px-5 py-4 items-center border-b hover:bg-white/[0.02] transition-colors group"
+                  style={{ borderColor: isLast ? 'transparent' : 'rgba(255,255,255,0.04)' }}
                 >
                   <span
                     className="col-span-3 text-sm font-medium text-white group-hover:text-blue-300 transition-colors"
@@ -248,7 +254,10 @@ export default async function InvoicesPage({
                     {clientName}
                   </span>
                   <span className="col-span-2">
-                    <StatusBadge status={(isOverdue ? 'overdue' : inv.status) as any} size="sm" />
+                    <StatusBadge
+                      status={(isOverdue ? 'overdue' : inv.status) as any}
+                      size="sm"
+                    />
                   </span>
                   <span
                     className="col-span-2 text-xs"
@@ -256,11 +265,12 @@ export default async function InvoicesPage({
                   >
                     {fmtDate(inv.due_date)}
                   </span>
+                  {/* Always uses inv.currency — the actual currency of the invoice */}
                   <span
                     className="col-span-2 text-sm font-semibold text-right text-white"
                     style={{ fontFamily: 'var(--font-mono), monospace' }}
                   >
-                    {fmt(inv.total, inv.currency)}
+                    {formatCurrency(inv.total, inv.currency)}
                   </span>
                 </Link>
               )

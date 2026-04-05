@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import AnalyticsCharts from '@/components/dashboard/AnalyticsCharts'
+import PlanGate from '@/components/ui/PlanGate'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -35,16 +36,25 @@ export default async function AnalyticsPage() {
   if (!user) redirect('/login')
 
   // Fetch all invoices with client name
-  const { data: invoicesData } = await supabase
-    .from('invoices')
-    .select(`
-      id, status, total, currency, created_at, paid_at, due_date,
-      clients ( name )
-    `)
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: true })
+   const [profileRes, invoicesRes] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('plan')
+      .eq('id', user.id)
+      .single(),
+ 
+    supabase
+      .from('invoices')
+      .select(`
+        id, status, total, currency, created_at, paid_at, due_date,
+        clients ( name )
+      `)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: true }),
+  ])
 
-  const invoices = invoicesData ?? []
+ const plan     = (profileRes.data?.plan ?? 'free') as string
+  const invoices = invoicesRes.data ?? []
 
   // ── Monthly revenue chart data (last 6 months) ───────────────────────────
   const months = lastNMonths(6)
@@ -118,18 +128,21 @@ export default async function AnalyticsPage() {
   ].filter(s => s.value > 0)
 
   return (
-    <AnalyticsCharts
-      chartData={chartData}
-      topClients={topClients}
-      statusBreakdown={statusBreakdown}
-      summary={{
-        totalInvoiced,
-        totalCollected,
-        totalOverdue,
-        collectionRate,
-        avgPaymentDays,
-        totalCount: invoices.length,
-      }}
-    />
+     <PlanGate allowed={plan !== 'free'} reason="analytics" plan={plan}>
+
+       <AnalyticsCharts
+         chartData={chartData}
+         topClients={topClients}
+         statusBreakdown={statusBreakdown}
+         summary={{
+           totalInvoiced,
+           totalCollected,
+           totalOverdue,
+           collectionRate,
+           avgPaymentDays,
+           totalCount: invoices.length,
+         }}
+         />
+     </PlanGate>
   )
 }
