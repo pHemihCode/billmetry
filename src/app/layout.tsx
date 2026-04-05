@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, DM_Sans, JetBrains_Mono } from "next/font/google";
+import { Bricolage_Grotesque, DM_Sans } from "next/font/google";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -16,20 +16,14 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-mono",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
-  title: "InvoiceFlow — Get paid faster, from anywhere",
+  title: "BillMetry — Get paid faster, from anywhere",
   description:
     "Create professional invoices, send Flutterwave payment links, and receive money directly to your Nigerian bank account. Built for African freelancers.",
   keywords: ["invoice", "freelancer", "Nigeria", "payment", "Flutterwave"],
   openGraph: {
-    title: "InvoiceFlow — Get paid faster, from anywhere",
+    title: "BillMetry — Get paid faster, from anywhere",
     description: "Professional invoicing and payments for African freelancers.",
     type: "website",
   },
@@ -43,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bricolage.variable} ${dmSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${bricolage.variable} ${dmSans.variable} h-full antialiased`}
     >
       <body
         className="min-h-full flex flex-col"

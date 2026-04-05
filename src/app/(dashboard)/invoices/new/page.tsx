@@ -1,10 +1,12 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import InvoiceBuilder from '@/components/dashboard/Invoice/InvoiceBuilder'
+import PlanGate from '@/components/ui/PlanGate'
 
-// Generates the next invoice number: finds the highest existing number
-// and increments it. Falls back to INV-0001.
-async function getNextInvoiceNumber(userId: string, supabase: Awaited<ReturnType<typeof createClient>>) {
+async function getNextInvoiceNumber(
+  userId: string,
+  supabase: Awaited<ReturnType<typeof createClient>>
+) {
   const { data } = await supabase
     .from('invoices')
     .select('invoice_number')
@@ -14,10 +16,8 @@ async function getNextInvoiceNumber(userId: string, supabase: Awaited<ReturnType
     .single()
 
   if (!data) return 'INV-0001'
-
   const match = data.invoice_number.match(/(\d+)$/)
   if (!match) return 'INV-0001'
-
   const next = parseInt(match[1], 10) + 1
   return `INV-${String(next).padStart(4, '0')}`
 }
@@ -27,7 +27,24 @@ export default async function NewInvoicePage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // Fetch active clients for the selector
+  // ── Plan check — server side ────────────────────────────────────────────────
+  // Get plan and monthly invoice count in parallel
+  const [profileRes, countRes] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('plan, default_currency')
+      .eq('id', user.id)
+      .single(),
+
+    supabase
+      .rpc('get_monthly_invoice_count', { p_user_id: user.id }),
+  ])
+
+  const plan       = profileRes.data?.plan ?? 'free'
+  const monthCount = countRes.data ?? 0
+  const atLimit    = plan === 'free' && monthCount >= 3
+
+  // ── Clients ─────────────────────────────────────────────────────────────────
   const { data: clientsData } = await supabase
     .from('clients')
     .select('id, name, email')
@@ -37,25 +54,28 @@ export default async function NewInvoicePage() {
 
   const clients = clientsData ?? []
 
-  // Get profile for default currency
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('default_currency')
-    .eq('id', user.id)
-    .single()
-
-  const nextInvoiceNumber = await getNextInvoiceNumber(user.id, supabase)
-
-  // If no clients yet, nudge them to add one first
   if (clients.length === 0) {
     redirect('/clients/new?from=invoice')
   }
 
+  const nextInvoiceNumber = await getNextInvoiceNumber(user.id, supabase)
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+  // PlanGate shows the upgrade modal if atLimit.
+  // When not at limit, renders children normally.
+
   return (
-    <InvoiceBuilder
-      clients={clients}
-      defaultCurrency={profile?.default_currency ?? 'NGN'}
-      nextInvoiceNumber={nextInvoiceNumber}
-    />
+    <PlanGate
+      allowed={!atLimit}
+      reason="invoice_limit"
+      plan={plan}
+      usage={{ current: monthCount, limit: plan === 'free' ? 3 : null }}
+    >
+      <InvoiceBuilder
+        clients={clients}
+        defaultCurrency={profileRes.data?.default_currency ?? 'NGN'}
+        nextInvoiceNumber={nextInvoiceNumber}
+      />
+    </PlanGate>
   )
 }

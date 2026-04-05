@@ -3,25 +3,21 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import StatusBadge from '@/components/dashboard/StatusBadge'
 import ClientForm from '@/components/dashboard/Invoice/ClientForm'
+import { formatCurrency, fmtDate } from '@/lib/format'
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type ClientInvoice = {
+  id: string
+  invoice_number: string
+  status: string
+  total: number
+  currency: string
+  due_date: string
+  created_at: string
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const currencySymbols: Record<string, string> = {
-  NGN: '₦', USD: '$', GBP: '£', EUR: '€',
-}
-
-function fmt(amount: number, currency: string) {
-  const sym = currencySymbols[currency] ?? ''
-  return `${sym}${amount.toLocaleString('en-NG', { minimumFractionDigits: 0 })}`
-}
-
-function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString('en-NG', {
-    day: 'numeric', month: 'short', year: 'numeric',
-  })
-}
-
-// ─── Info row used in the client card ────────────────────────────────────────
 
 function InfoRow({ label, value }: { label: string; value: string | null }) {
   if (!value) return null
@@ -38,6 +34,18 @@ function InfoRow({ label, value }: { label: string; value: string | null }) {
   )
 }
 
+// Groups invoices by currency and sums — returns "₦50,000 · $800"
+function sumByCurrency(invoices: ClientInvoice[]): string {
+  if (invoices.length === 0) return formatCurrency(0, 'NGN')
+  const map: Record<string, number> = {}
+  for (const inv of invoices) {
+    map[inv.currency] = (map[inv.currency] ?? 0) + inv.total
+  }
+  return Object.entries(map)
+    .map(([currency, total]) => formatCurrency(total, currency))
+    .join(' · ')
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function ClientDetailPage({
@@ -50,7 +58,6 @@ export default async function ClientDetailPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // Fetch the client — 404 if not found or belongs to someone else
   const { data: client } = await supabase
     .from('clients')
     .select('id, name, email, phone, address, country, is_archived, created_at')
@@ -60,7 +67,6 @@ export default async function ClientDetailPage({
 
   if (!client) notFound()
 
-  // Fetch all invoices for this client
   const { data: invoicesData } = await supabase
     .from('invoices')
     .select('id, invoice_number, status, total, currency, due_date, created_at')
@@ -68,13 +74,11 @@ export default async function ClientDetailPage({
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
-  const invoices = invoicesData ?? []
+  const invoices: ClientInvoice[] = invoicesData ?? []
 
-  // Compute totals
-  const totalBilled   = invoices.reduce((s, i) => s + i.total, 0)
-  const totalPaid     = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + i.total, 0)
-  const outstanding   = invoices.filter(i => ['sent', 'viewed'].includes(i.status)).reduce((s, i) => s + i.total, 0)
-  const defaultCurrency = invoices[0]?.currency ?? 'NGN'
+  // Stats — grouped by currency so mixed invoices display correctly
+  const paidInvoices        = invoices.filter(i => i.status === 'paid')
+  const outstandingInvoices = invoices.filter(i => ['sent', 'viewed'].includes(i.status))
 
   const initials = client.name
     .split(' ')
@@ -86,7 +90,6 @@ export default async function ClientDetailPage({
   return (
     <div className="max-w-4xl mx-auto space-y-6">
 
-      {/* Back link */}
       <Link
         href="/clients"
         className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-white transition-colors"
@@ -99,7 +102,7 @@ export default async function ClientDetailPage({
 
       <div className="grid lg:grid-cols-3 gap-5">
 
-        {/* ── Left: Client info + edit form ── */}
+        {/* ── Left column ── */}
         <div className="space-y-4">
 
           {/* Client card */}
@@ -110,10 +113,9 @@ export default async function ClientDetailPage({
               borderColor: 'rgba(255,255,255,0.06)',
             }}
           >
-            {/* Avatar + name */}
             <div className="flex items-center gap-3 mb-5">
               <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-base font-bold text-white"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-base font-bold text-white"
                 style={{ background: 'linear-gradient(135deg, #1D4ED8, #7C3AED)' }}
               >
                 {initials}
@@ -130,7 +132,6 @@ export default async function ClientDetailPage({
                 </p>
               </div>
             </div>
-
             <div className="space-y-3">
               <InfoRow label="Email"   value={client.email} />
               <InfoRow label="Phone"   value={client.phone} />
@@ -139,7 +140,7 @@ export default async function ClientDetailPage({
             </div>
           </div>
 
-          {/* Stats */}
+          {/* Stats — each uses the actual currency of the invoices */}
           <div
             className="rounded-2xl border p-5 space-y-3"
             style={{
@@ -148,10 +149,10 @@ export default async function ClientDetailPage({
             }}
           >
             {[
-              { label: 'Total billed',   value: fmt(totalBilled, defaultCurrency),   color: '#60A5FA' },
-              { label: 'Collected',      value: fmt(totalPaid, defaultCurrency),      color: '#34D399' },
-              { label: 'Outstanding',    value: fmt(outstanding, defaultCurrency),    color: '#FBBF24' },
-              { label: 'Invoices sent',  value: String(invoices.length),              color: '#A78BFA' },
+              { label: 'Total billed',  value: sumByCurrency(invoices),            color: '#60A5FA' },
+              { label: 'Collected',     value: sumByCurrency(paidInvoices),        color: '#34D399' },
+              { label: 'Outstanding',   value: sumByCurrency(outstandingInvoices), color: '#FBBF24' },
+              { label: 'Invoices sent', value: String(invoices.length),            color: '#A78BFA' },
             ].map(stat => (
               <div key={stat.label} className="flex items-center justify-between">
                 <span className="text-xs text-slate-500">{stat.label}</span>
@@ -182,7 +183,7 @@ export default async function ClientDetailPage({
           </Link>
         </div>
 
-        {/* ── Right: Invoice history ── */}
+        {/* ── Right column — invoice history ── */}
         <div className="lg:col-span-2">
           <div
             className="rounded-2xl border overflow-hidden"
@@ -221,10 +222,12 @@ export default async function ClientDetailPage({
               </div>
             ) : (
               <>
-                {/* Header row */}
                 <div
                   className="grid grid-cols-12 px-5 py-3 text-xs font-medium text-slate-600 uppercase tracking-wider border-b"
-                  style={{ borderColor: 'rgba(255,255,255,0.04)', fontFamily: 'var(--font-mono), monospace' }}
+                  style={{
+                    borderColor: 'rgba(255,255,255,0.04)',
+                    fontFamily: 'var(--font-mono), monospace',
+                  }}
                 >
                   <span className="col-span-4">Invoice</span>
                   <span className="col-span-3">Status</span>
@@ -232,12 +235,11 @@ export default async function ClientDetailPage({
                   <span className="col-span-2 text-right">Amount</span>
                 </div>
 
-                {/* Invoice rows */}
                 {invoices.map((inv, i) => (
                   <Link
                     key={inv.id}
                     href={`/invoices/${inv.id}`}
-                    className="grid grid-cols-12 px-5 py-4 items-center border-b hover:bg-white/2 transition-colors group"
+                    className="grid grid-cols-12 px-5 py-4 items-center border-b hover:bg-white/[0.02] transition-colors group"
                     style={{
                       borderColor: i === invoices.length - 1 ? 'transparent' : 'rgba(255,255,255,0.04)',
                     }}
@@ -254,11 +256,12 @@ export default async function ClientDetailPage({
                     <span className="col-span-3 text-xs text-slate-500">
                       {fmtDate(inv.due_date)}
                     </span>
+                    {/* formatCurrency always uses inv.currency — never hardcoded */}
                     <span
                       className="col-span-2 text-sm font-semibold text-right text-white"
                       style={{ fontFamily: 'var(--font-mono), monospace' }}
                     >
-                      {fmt(inv.total, inv.currency)}
+                      {formatCurrency(inv.total, inv.currency)}
                     </span>
                   </Link>
                 ))}
