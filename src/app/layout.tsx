@@ -18,16 +18,26 @@ const dmSans = DM_Sans({
 
 
 export const metadata: Metadata = {
-  title: "BillMetry — Get paid faster, from anywhere",
-  description:
-    "Create professional invoices, send Flutterwave payment links, and receive money directly to your Nigerian bank account. Built for African freelancers.",
-  keywords: ["invoice", "freelancer", "Nigeria", "payment", "Flutterwave"],
-  openGraph: {
-    title: "BillMetry — Get paid faster, from anywhere",
-    description: "Professional invoicing and payments for African freelancers.",
-    type: "website",
+  title: {
+    default: 'BillMetry — Get paid faster, from anywhere',
+    template: '%s | BillMetry',
   },
-};
+  description:
+    'Create professional invoices, send Flutterwave payment links, and receive money directly to your Nigerian bank account. Built for African freelancers.',
+  keywords: ['invoice', 'freelancer', 'Nigeria', 'payment', 'Flutterwave', 'BillMetry'],
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/favicon.svg',
+  },
+  openGraph: {
+    title: 'BillMetry — Get paid faster, from anywhere',
+    description: 'Professional invoicing and payments for African freelancers.',
+    type: 'website',
+    siteName: 'BillMetry',
+  },
+}
 
 export default function RootLayout({
   children,
@@ -37,10 +47,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${bricolage.variable} ${dmSans.variable} h-full antialiased`}
     >
       <body
-        className="min-h-full flex flex-col"
+        className="min-h-full flex flex-col antialiased"
         style={{ fontFamily: "var(--font-dm-sans), sans-serif" }}
       >
         {children}

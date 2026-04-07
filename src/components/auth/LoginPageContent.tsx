@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { authStyles } from '@/lib/auth-styles'
 import GoogleIcon from '@/components/ui/GoogleIcon'
+import { LogoFull } from '../ui/logo'
 
 const supabase = createClient()
 export default function LoginPageContent() {
@@ -53,8 +54,8 @@ export default function LoginPageContent() {
 
           {/* Logo */}
           <div className="auth-fade-up text-center mb-8">
-            <Link href="/" className="mono inline-block text-sm font-semibold tracking-widest text-blue-400 uppercase hover:text-blue-300 transition-colors">
-              BillMetry
+            <Link href="/" className="flex items-center justify-center ml-12.5">
+             <LogoFull/>
             </Link>
           </div>
 
@@ -120,6 +121,7 @@ export default function LoginPageContent() {
                   type="submit"
                   disabled={loading}
                   className="auth-shimmer-btn w-full py-3.5 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2"
+                  style={{borderRadius:'12px'}}
                 >
                   {loading ? <><span className="spinner" /> Signing in…</> : 'Sign in'}
                 </button>
