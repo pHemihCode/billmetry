@@ -46,11 +46,6 @@ export default function DemoInvoicePage() {
           <span className="text-blue-300">
             This is a demo invoice — showing what your clients will see
           </span>
-          <Link href="/signup"
-            className="text-xs font-bold text-white px-4 py-1.5 rounded-full ml-4 shrink-0"
-            style={{ background: 'linear-gradient(90deg, #1D4ED8, #2563EB)' }}>
-            Get started free →
-          </Link>
         </div>
       </div>
 

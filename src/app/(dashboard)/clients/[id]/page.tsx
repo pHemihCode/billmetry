@@ -115,7 +115,7 @@ export default async function ClientDetailPage({
           >
             <div className="flex items-center gap-3 mb-5">
               <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-base font-bold text-white"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-base font-bold text-white"
                 style={{ background: 'linear-gradient(135deg, #1D4ED8, #7C3AED)' }}
               >
                 {initials}
@@ -239,7 +239,7 @@ export default async function ClientDetailPage({
                   <Link
                     key={inv.id}
                     href={`/invoices/${inv.id}`}
-                    className="grid grid-cols-12 px-5 py-4 items-center border-b hover:bg-white/[0.02] transition-colors group"
+                    className="grid grid-cols-12 px-5 py-4 items-center border-b hover:bg-white/2 transition-colors group"
                     style={{
                       borderColor: i === invoices.length - 1 ? 'transparent' : 'rgba(255,255,255,0.04)',
                     }}

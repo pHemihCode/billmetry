@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { LogoFull } from '../ui/logo'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -92,25 +93,6 @@ function getInitials(name: string) {
 
 const planColors: Record<string, string> = {
   free: '#94A3B8', pro: '#60A5FA', business: '#A78BFA',
-}
-
-// ─── Logo ─────────────────────────────────────────────────────────────────────
-
-function Logo({ size = 26 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="44" height="44" rx="10" fill="#2563EB"/>
-      <rect x="11" y="10" width="5"  height="24"  rx="2"   fill="white"/>
-      <rect x="15" y="10" width="10" height="4.5" rx="2"   fill="white"/>
-      <rect x="15" y="19.5" width="12" height="4" rx="2"   fill="white"/>
-      <rect x="15" y="29.5" width="10" height="4.5" rx="2" fill="white"/>
-      <rect x="23" y="10" width="4"  height="8"   rx="2"   fill="white"/>
-      <rect x="23" y="29" width="4"  height="9"   rx="2"   fill="white"/>
-      <rect x="29" y="28" width="4"  height="6"   rx="1.5" fill="rgba(255,255,255,0.38)"/>
-      <rect x="34" y="22" width="4"  height="12"  rx="1.5" fill="rgba(255,255,255,0.65)"/>
-      <rect x="39" y="16" width="4"  height="18"  rx="1.5" fill="white"/>
-    </svg>
-  )
 }
 
 // ─── Nav link (shared) ────────────────────────────────────────────────────────
@@ -217,11 +199,8 @@ function DesktopSidebar({ profile }: { profile: Profile | null }) {
     <aside className="dash-sidebar hidden md:flex flex-col w-55 shrink-0 h-screen border-r border-r-[rgba(255,255,255,0.07)]">
       {/* Logo */}
       <div className="px-5 py-5 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <Logo size={26} />
-          <span className="text-sm font-bold text-white" style={{ fontFamily: 'Georgia,serif' }}>
-            Bill<span style={{ color: '#60A5FA', fontWeight: 400 }}>Metry</span>
-          </span>
+        <Link href="/" className="flex items-center gap-2.5">
+          <LogoFull width={170}/>
         </Link>
       </div>
 
@@ -340,10 +319,8 @@ function MobileNav({ profile }: { profile: Profile | null }) {
               style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
               <Link href="/dashboard" onClick={() => setOpen(false)}
                 className="flex items-center gap-2.5">
-                <Logo size={26} />
-                <span className="text-sm font-bold text-white" style={{ fontFamily: 'Georgia,serif' }}>
-                  Bill<span style={{ color: '#60A5FA', fontWeight: 400 }}>Metry</span>
-                </span>
+                <LogoFull width={170}/>
+                
               </Link>
               <button onClick={() => setOpen(false)}
                 className="w-8 h-8 flex items-center justify-center rounded-lg"

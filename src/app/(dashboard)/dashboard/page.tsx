@@ -108,28 +108,28 @@ export default async function DashboardPage() {
               {/* Desktop table */}
               <div className="hidden md:block">
                 {/* Header row */}
-                <div className="flex items-center px-5 py-3 border-b text-xs font-medium text-slate-600 uppercase tracking-wider gap-4"
+                <div className="grid grid-cols-12 px-5 py-3 border-b text-xs font-medium text-slate-600 uppercase tracking-wider"
                   style={{ borderColor: 'rgba(255,255,255,0.05)', fontFamily: 'var(--font-mono),monospace' }}>
-                  <span className="w-28 shrink-0">Invoice</span>
-                  <span className="flex-1">Client</span>
-                  <span className="w-24 shrink-0">Status</span>
-                  <span className="w-24 shrink-0">Due</span>
-                  <span className="w-24 shrink-0 text-right">Amount</span>
+                  <span className="col-span-3">Invoice</span>
+              <span className="col-span-3">Client</span>
+              <span className="col-span-2">Status</span>
+              <span className="col-span-2">Due date</span>
+              <span className="col-span-2 text-right">Amount</span>
                 </div>
                 {recentInvoices.map((inv, i) => (
                   <Link key={inv.id} href={`/invoices/${inv.id}`}
-                    className="flex items-center px-5 py-3.5 border-b hover:bg-white/2 transition-colors group gap-4"
+                    className="grid grid-cols-12 px-5 py-4 items-center border-b hover:bg-white/2 transition-colors group"
                     style={{ borderColor: i === recentInvoices.length - 1 ? 'transparent' : 'rgba(255,255,255,0.04)' }}>
-                    <span className="w-28 shrink-0 text-sm font-medium text-white group-hover:text-blue-300 transition-colors truncate"
+                    <span className="col-span-3 shrink-0 text-sm font-medium text-white group-hover:text-blue-300 transition-colors truncate"
                       style={{ fontFamily: 'var(--font-mono),monospace' }}>
                       {inv.invoice_number}
                     </span>
-                    <span className="flex-1 text-sm text-slate-400 truncate">{clientName(inv)}</span>
-                    <span className="w-24 shrink-0">
+                    <span className="col-span-3 flex-1 text-sm text-slate-400 truncate">{clientName(inv)}</span>
+                    <span className="col-span-2 shrink-0">
                       <StatusBadge status={inv.status as any} size="sm" />
                     </span>
-                    <span className="w-24 shrink-0 text-xs text-slate-500">{fmtDate(inv.due_date)}</span>
-                    <span className="w-24 shrink-0 text-sm font-semibold text-right text-white"
+                    <span className="col-span-2 shrink-0 text-xs text-slate-500">{fmtDate(inv.due_date)}</span>
+                    <span className="col-span-2 shrink-0 text-sm font-semibold text-right text-white"
                       style={{ fontFamily: 'var(--font-mono),monospace' }}>
                       {formatCurrency(inv.total, inv.currency)}
                     </span>
