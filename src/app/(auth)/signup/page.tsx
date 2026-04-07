@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { authStyles } from '@/lib/auth-styles'
 import { createClient } from '@/lib/supabase/client'
 import GoogleIcon from '@/components/ui/GoogleIcon'
+import { LogoFull } from '@/components/ui/logo'
 
 function getStrength(pw: string): { score: number; label: string; color: string } {
   let score = 0
@@ -93,9 +94,9 @@ export default function SignupPage() {
 
         <div className="relative z-10 w-full max-w-100">
 
-          <div className="auth-fade-up text-center mb-5">
-            <Link href="/" className="mono inline-block text-sm font-semibold tracking-widest text-blue-400 uppercase hover:text-blue-300 transition-colors">
-              BillMetry
+          <div className="auth-fade-up text-center mb-8 ml-12.5">
+            <Link href="/" className="flex items-center justify-center">
+             <LogoFull />
             </Link>
           </div>
 
@@ -178,6 +179,7 @@ export default function SignupPage() {
                   type="submit"
                   disabled={loading}
                   className="auth-shimmer-btn w-full py-3.5 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2"
+                  style={{borderRadius:'12px'}}
                 >
                   {loading ? <><span className="spinner" /> Creating account…</> : 'Create free account'}
                 </button>

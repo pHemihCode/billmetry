@@ -46,6 +46,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/invoices') ||
     pathname.startsWith('/clients') ||
+    pathname.startsWith('/billing')
     pathname.startsWith('/settings')
 
   // Not authenticated → redirect to login, preserving intended destination

@@ -158,7 +158,7 @@ export default function UpgradeModal({ isOpen, onClose, reason }: UpgradeModalPr
         {/* CTAs */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <Link
-            href="/settings#billing"
+            href="/billing"
             onClick={onClose}
             style={{
               display: 'block', textAlign: 'center',

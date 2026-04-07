@@ -108,7 +108,7 @@ export default function PlanGate({ allowed, reason, plan, usage, children }: Pla
 
         {/* CTA */}
         <Link
-          href="/settings#billing"
+          href="/billing"
           className="inline-flex items-center gap-2 text-sm font-bold text-white px-8 py-3.5 rounded-xl transition-all"
           style={{
             background: 'linear-gradient(90deg, #1D4ED8, #2563EB)',

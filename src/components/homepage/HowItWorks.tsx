@@ -55,11 +55,11 @@ export default function HowItWorks() {
         {/* Steps — each is a full card, no connector line that looks bad */}
         <div className="grid md:grid-cols-3 gap-6">
           {steps.map((step, i) => (
-            <div key={step.num} className="step-card rounded-2xl p-8 flex flex-col">
+            <div key={step.num} className="step-card rounded-2xl p-8 flex flex-col" style={{borderRadius:'10px'}}>
               {/* Icon in blue circle */}
               <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 shrink-0"
-                style={{ background: 'linear-gradient(135deg, #1D4ED8, #2563EB)', boxShadow: '0 4px 16px rgba(37,99,235,0.35)' }}
+                style={{ background: 'linear-gradient(135deg, #1D4ED8, #2563EB)', boxShadow: '0 4px 16px rgba(37,99,235,0.35)', borderRadius:'10px' }}
               >
                 {step.icon}
               </div>

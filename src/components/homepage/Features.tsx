@@ -32,19 +32,18 @@ function Features() {
   },
 ]
  return (
-    <section id="features" className="py-28 px-6 bg-[#060A16]">
+     <section id="features" className="py-20 md:py-28 px-5 md:px-8 bg-[#060A16]">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-16 text-center">
+        <div className="mb-12 md:mb-16 text-center">
           <div className="mono text-xs text-blue-400 tracking-widest uppercase mb-4">Features</div>
-          <h2 className="heading text-3xl md:text-5xl font-extrabold text-white">
-            Everything a freelancer needs
-          </h2>
+          <h2 className="heading text-3xl md:text-5xl font-extrabold text-white">Everything a freelancer needs</h2>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {features.map((f) => (
-            <div key={f.title} className="feature-card rounded-2xl p-7 border-[1px] border-blue-950 transition-all duration-200 hover:scale-[1.03]">
-              <div className="text-2xl mb-5">{f.icon}</div>
-              <h3 className="heading text-white font-bold mb-2">{f.title}</h3>
+        {/* 1 col mobile, 2 col tablet, 3 col desktop */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" >
+          {features.map(f => (
+            <div key={f.title} className="feature-card rounded-2xl p-6 md:p-7" style={{borderRadius:'10px'}}>
+              <div className="text-2xl mb-4">{f.icon}</div>
+              <h3 className="heading text-white font-bold mb-2 text-base">{f.title}</h3>
               <p className="text-slate-500 text-sm leading-relaxed">{f.desc}</p>
             </div>
           ))}
