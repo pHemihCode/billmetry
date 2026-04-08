@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import StatusBadge from '@/components/dashboard/StatusBadge'
 import SendInvoiceButton from '@/components/dashboard/Invoice/SendInvoiceButton'
-
+import DownloadPDFButton from '@/components/dashboard/Invoice/DownloadPDFButton'
 const currencySymbols: Record<string, string> = { NGN: '₦', USD: '$', GBP: '£', EUR: '€' }
 function fmt(amount: number, currency: string) {
   const sym = currencySymbols[currency] ?? ''
