@@ -323,7 +323,7 @@ const publicToken = randomBytes(20).toString('hex')
                 type="number" min="0" max="100" step="0.5"
                 value={taxRate}
                 onChange={e => setTaxRate(parseFloat(e.target.value) || 0)}
-                className="w-14 bg-white/[0.03] border border-white/[0.08] rounded-lg px-2 py-1 text-xs text-white text-center focus:outline-none focus:border-blue-500/50"
+                className="w-14 bg-white/3 border border-white/8 rounded-lg px-2 py-1 text-xs text-white text-center focus:outline-none focus:border-blue-500/50"
               />
               <span>%</span>
             </div>
