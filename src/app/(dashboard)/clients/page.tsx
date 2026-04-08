@@ -80,12 +80,12 @@ export default async function ClientsPage() {
           <>
             {/* Desktop table */}
             <div className="hidden md:block">
-              <div className="flex items-center px-5 py-3 border-b text-xs font-medium text-slate-600 uppercase tracking-wider gap-4"
+              <div className="grid grid-cols-12 px-5 py-3 border-b text-xs font-medium text-slate-600 uppercase tracking-wider"
                 style={{ borderColor: 'rgba(255,255,255,0.05)', fontFamily: 'var(--font-mono),monospace' }}>
-                <span className="flex-1">Name</span>
-                <span className="w-48 shrink-0">Email</span>
-                <span className="w-28 shrink-0">Country</span>
-                <span className="w-20 shrink-0 text-right">Invoices</span>
+                <span className="col-span-4">Name</span>
+                <span className="col-span-4 shrink-0">Email</span>
+                <span className="col-span-2 shrink-0">Country</span>
+                <span className="col-span-2 shrink-0 text-right">Invoices</span>
               </div>
 
               {clients.map((client, i) => {
@@ -93,10 +93,10 @@ export default async function ClientsPage() {
                 const invoiceCount = countMap[client.id] ?? 0
                 return (
                   <Link key={client.id} href={`/clients/${client.id}`}
-                    className="flex items-center px-5 py-3.5 border-b hover:bg-white/2 transition-colors group gap-4"
+                    className="grid grid-cols-12 px-5 py-4 items-center border-b hover:bg-white/2 transition-colors group"
                     style={{ borderColor: i === clients.length - 1 ? 'transparent' : 'rgba(255,255,255,0.04)' }}>
                     {/* Name + avatar */}
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="col-span-4 flex items-center gap-3 flex-1 min-w-0">
                       <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold text-white"
                         style={{ background: 'linear-gradient(135deg,#1D4ED8,#7C3AED)' }}>
                         {initials}
@@ -110,9 +110,9 @@ export default async function ClientsPage() {
                         )}
                       </div>
                     </div>
-                    <span className="w-48 shrink-0 text-sm text-slate-400 truncate">{client.email}</span>
-                    <span className="w-28 shrink-0 text-sm text-slate-500">{client.country || '—'}</span>
-                    <span className="w-20 shrink-0 text-sm font-medium text-right"
+                    <span className="col-span-4 shrink-0 text-sm text-slate-400 truncate">{client.email}</span>
+                    <span className="col-span-2 shrink-0 text-sm text-slate-500">{client.country || '—'}</span>
+                    <span className="col-span-2 shrink-0 text-sm font-medium text-right"
                       style={{ fontFamily: 'var(--font-mono),monospace', color: invoiceCount > 0 ? '#60A5FA' : '#475569' }}>
                       {invoiceCount}
                     </span>
