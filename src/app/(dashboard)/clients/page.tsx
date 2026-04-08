@@ -83,9 +83,9 @@ export default async function ClientsPage() {
               <div className="flex items-center px-5 py-3 border-b text-xs font-medium text-slate-600 uppercase tracking-wider gap-4"
                 style={{ borderColor: 'rgba(255,255,255,0.05)', fontFamily: 'var(--font-mono),monospace' }}>
                 <span className="flex-1">Name</span>
-                <span className="w-48 flex-shrink-0">Email</span>
-                <span className="w-28 flex-shrink-0">Country</span>
-                <span className="w-20 flex-shrink-0 text-right">Invoices</span>
+                <span className="w-48 shrink-0">Email</span>
+                <span className="w-28 shrink-0">Country</span>
+                <span className="w-20 shrink-0 text-right">Invoices</span>
               </div>
 
               {clients.map((client, i) => {
@@ -93,11 +93,11 @@ export default async function ClientsPage() {
                 const invoiceCount = countMap[client.id] ?? 0
                 return (
                   <Link key={client.id} href={`/clients/${client.id}`}
-                    className="flex items-center px-5 py-3.5 border-b hover:bg-white/[0.02] transition-colors group gap-4"
+                    className="flex items-center px-5 py-3.5 border-b hover:bg-white/2 transition-colors group gap-4"
                     style={{ borderColor: i === clients.length - 1 ? 'transparent' : 'rgba(255,255,255,0.04)' }}>
                     {/* Name + avatar */}
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-white"
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold text-white"
                         style={{ background: 'linear-gradient(135deg,#1D4ED8,#7C3AED)' }}>
                         {initials}
                       </div>
@@ -110,9 +110,9 @@ export default async function ClientsPage() {
                         )}
                       </div>
                     </div>
-                    <span className="w-48 flex-shrink-0 text-sm text-slate-400 truncate">{client.email}</span>
-                    <span className="w-28 flex-shrink-0 text-sm text-slate-500">{client.country || '—'}</span>
-                    <span className="w-20 flex-shrink-0 text-sm font-medium text-right"
+                    <span className="w-48 shrink-0 text-sm text-slate-400 truncate">{client.email}</span>
+                    <span className="w-28 shrink-0 text-sm text-slate-500">{client.country || '—'}</span>
+                    <span className="w-20 shrink-0 text-sm font-medium text-right"
                       style={{ fontFamily: 'var(--font-mono),monospace', color: invoiceCount > 0 ? '#60A5FA' : '#475569' }}>
                       {invoiceCount}
                     </span>
@@ -128,10 +128,10 @@ export default async function ClientsPage() {
                 const invoiceCount = countMap[client.id] ?? 0
                 return (
                   <Link key={client.id} href={`/clients/${client.id}`}
-                    className="flex items-center gap-3 px-4 py-4 border-b hover:bg-white/[0.02] transition-colors"
+                    className="flex items-center gap-3 px-4 py-4 border-b hover:bg-white/2 transition-colors"
                     style={{ borderColor: i === clients.length - 1 ? 'transparent' : 'rgba(255,255,255,0.05)' }}>
                     {/* Avatar */}
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold text-white"
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-sm font-bold text-white"
                       style={{ background: 'linear-gradient(135deg,#1D4ED8,#7C3AED)' }}>
                       {initials}
                     </div>
@@ -141,7 +141,7 @@ export default async function ClientsPage() {
                       <p className="text-xs text-slate-500 truncate mt-0.5">{client.email}</p>
                     </div>
                     {/* Invoice count + chevron */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       {invoiceCount > 0 && (
                         <span className="text-xs font-semibold px-2 py-1 rounded-full"
                           style={{ background: 'rgba(37,99,235,0.12)', color: '#60A5FA', fontFamily: 'var(--font-mono),monospace' }}>

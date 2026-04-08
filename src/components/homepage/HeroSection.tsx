@@ -26,7 +26,7 @@ function HeroSection() {
         {/* Badge */}
         <div className="fu inline-flex items-center gap-2 border border-blue-500/20 rounded-full px-4 py-2 mb-6 md:mb-8"
           style={{ background:'rgba(37,99,235,0.08)' }}>
-          <span className="pulse w-2 h-2 rounded-full bg-blue-400 inline-block flex-shrink-0" />
+          <span className="pulse w-2 h-2 rounded-full bg-blue-400 inline-block shrink-0" />
           <span className="mono text-xs text-blue-300 tracking-widest uppercase">Built for Nigerian freelancers</span>
         </div>
  
@@ -49,7 +49,7 @@ function HeroSection() {
             Start free — no card needed
           </Link>
           <Link href="/invoice/view/demo"
-            className="w-full sm:w-auto text-sm font-medium text-slate-300 px-8 py-4 rounded-full border border-white/10 hover:border-blue-400/35 hover:text-white transition-all text-center">
+            className="hidden sm:inline-block w-full sm:w-auto text-sm font-medium text-slate-300 px-8 py-4 rounded-full border border-white/10 hover:border-blue-400/35 hover:text-white transition-all text-center">
             See demo invoice →
           </Link>
         </div>

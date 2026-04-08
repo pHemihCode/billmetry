@@ -141,14 +141,6 @@ export default async function InvoicesPage({
           <p className="text-sm text-slate-500">
             {allInvoices.length} invoice{allInvoices.length !== 1 ? 's' : ''}
           </p>
-          {allInvoices.length > 0 && (
-            <p
-              className="text-xs text-slate-600"
-              style={{ fontFamily: 'var(--font-mono), monospace' }}
-            >
-              {sumByCurrency(paidInvoices)} collected
-            </p>
-          )}
         </div>
         <Link
           href="/invoices/new"
@@ -215,7 +207,8 @@ export default async function InvoicesPage({
           <EmptyInvoices filter={filter} />
         ) : (
           <>
-            {/* Header row */}
+            <div className='hidden md:block'>
+              {/* Header row */}
             <div
               className="grid grid-cols-12 px-5 py-3 border-b text-xs font-medium text-slate-600 uppercase tracking-wider"
               style={{
@@ -241,7 +234,7 @@ export default async function InvoicesPage({
                 <Link
                   key={inv.id}
                   href={`/invoices/${inv.id}`}
-                  className="grid grid-cols-12 px-5 py-4 items-center border-b hover:bg-white/[0.02] transition-colors group"
+                  className="grid grid-cols-12 px-5 py-4 items-center border-b hover:bg-white/2 transition-colors group"
                   style={{ borderColor: isLast ? 'transparent' : 'rgba(255,255,255,0.04)' }}
                 >
                   <span
@@ -275,6 +268,39 @@ export default async function InvoicesPage({
                 </Link>
               )
             })}
+            </div>
+      <div className="md:hidden">
+                      {invoices.map((inv, i) => {
+                        const clientRaw  = Array.isArray(inv.clients) ? inv.clients[0] : inv.clients
+              const clientName = (clientRaw as { name: string } | null)?.name ?? '—'
+              const isOverdue  = inv.status !== 'paid' && new Date(inv.due_date) < new Date()
+              const isLast     = i === invoices.length - 1
+
+                        return  <Link key={inv.id} href={`/invoices/${inv.id}`}
+                          className="flex justify-between px-4 py-4 border-b hover:bg-white/2 transition-colors"
+                          style={{ borderColor: isLast ? 'transparent' : 'rgba(255,255,255,0.04)' }}>
+                          {/* Left side */}
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-white truncate"
+                                style={{ fontFamily: 'var(--font-mono),monospace' }}>
+                                {inv.invoice_number}
+                              </p>
+                              <p className="text-xs text-slate-500 truncate mt-0.5">{clientName}</p>
+                              <StatusBadge status={(isOverdue ? 'overdue' : inv.status) as any}
+                      size="sm" />
+                            </div>
+                          </div>
+                          {/* Right side */}
+                          <div className="text-right shrink-0 ml-3">
+                            <p className="text-sm font-bold text-white" style={{ fontFamily: 'var(--font-mono),monospace' }}>
+                              {formatCurrency(inv.total, inv.currency)}
+                            </p>
+                            <p className="text-xs text-slate-600 mt-0.5">{fmtDate(inv.due_date)}</p>
+                          </div>
+                        </Link>
+                      })}
+                    </div>
           </>
         )}
       </div>

@@ -129,7 +129,6 @@ export default async function AnalyticsPage() {
 
   return (
      <PlanGate allowed={plan !== 'free'} reason="analytics" plan={plan}>
-
        <AnalyticsCharts
          chartData={chartData}
          topClients={topClients}

@@ -63,7 +63,7 @@ export default function PlanGate({ allowed, reason, plan, usage, children }: Pla
       >
         {/* Icon */}
         <div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
+          className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-6"
           style={{ background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(96,165,250,0.2)' }}
         >
           {wall.icon}
@@ -118,7 +118,7 @@ export default function PlanGate({ allowed, reason, plan, usage, children }: Pla
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
           </svg>
-          Upgrade to Pro — ₦3,500/month
+          Upgrade to Pro
         </Link>
 
         <p className="mt-4 text-xs text-slate-600">
